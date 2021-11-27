@@ -16,84 +16,11 @@ database.connect(function(err) {
     console.log("Connected!!!")
 });
 
-module.exports.login = async(data) =>{
+module.exports.callback = async(data) =>{
     try {
-        const cmd_query = 'SELECT * FROM Client WHERE Username = "{}";'.replace('{}', data.username);
-        const user = await database.query(cmd_query, (err, result) => {
-            if (err){
-                throw err;
-            }
-            if (result.length <= 0){
-                return {
-                    message: "Username or password wrong!!", 
-                }
-            }
-            console.log(result);
-
-        });
-    
-        // const result = bcrypt.compareSync(data.password, user.password);
-        if (result){
-            const payload = {
-                _id: user._id,
-                username: user.username,
-                roleUser: user.roleUser
-            }
-            const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '6h'});
-            const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
-            user.refreshToken = refreshToken;
-            user.save();
-            return {
-                accessToken: accessToken,
-                refreshToken: refreshToken
-            }
-        }
-        else {
-            return {
-                message: "Password wrong"
-            }
-        }
+        return data;
     } catch (error) {
         throw error;   
-    }
-}
-
-module.exports.regenerateAccessToken = async (refreshToken) => {
-    try {
-        const user = await User.findOne({refreshToken: refreshToken});
-        if (user) {
-            const payload = {
-                _id: user._id,
-                username: user.username,
-                roleUser: user.roleUser
-            }
-            const userRefresh = await jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-            const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '6h'});
-            return {
-                accessToken: accessToken
-            }
-        }
-        else {
-            return null;
-        }
-    } catch (error) {
-        throw error;
-    }
-}
-
-module.exports.createToken = async () => {
-    try {
-        
-    } catch (error) {
-        throw error;
-    }
-}
-
-module.exports.refreshToken = async (token) => {
-    try {
-        
-    } catch (error) {
-        throw error;
     }
 }
 
@@ -149,7 +76,7 @@ module.exports.getClient = async (data)  => {
 
 module.exports.billClient = async (data) => {
     try {
-        const cmd_query = 'SELECT * FROM Client WHERE Client_ID = "{}";'.replace('{}', data.id);
+        const cmd_query = 'SELECT * FROM Order_room WHERE ID_customer = "{}";'.replace('{}', data.id);
         const client = await database.query(cmd_query, (err, result) => {
             if (err){
                 throw err;
@@ -158,6 +85,10 @@ module.exports.billClient = async (data) => {
                 return {
                     message: 'Data null'
                 };
+            }
+            for (let data of result){
+                delete data.ID_customer;
+                delete data.Name_service;
             }
             return {
                 message: 'Success',
@@ -171,7 +102,40 @@ module.exports.billClient = async (data) => {
 
 module.exports.addRoom = async (data) => {
     try {
-        
+        const cmd_query = 'INSERT INTO ROOM_TYPE (RoomType_Name, Room_Size, Max_Occupant, Description) VALUES ("name", "size", "num", "description");'
+                    .replace('name',data.name)
+                    .replace('size',data.size)
+                    .replace('num',data.num)
+                    .replace('description',data.description);
+
+        const client = await database.query(cmd_query, (err, result) => {
+            if (err){
+                return {
+                    message: err.message
+                }
+            }
+    
+            for (let fur in data.furniture){
+                const add_query = 'INSERT INTO ROOM_SUPPLY (Supply_ID, RoomType_ID, Quantity) VALUES ("InsertSupply", InsertRoomType, InsertQuantity);'
+                    .replace("InsertSupply", fur)
+                    .replace("InsertRoomType", result.insertId)
+                    .replace("InsertQuantity", data.furniture[fur]);
+
+                database.query(add_query, (err, result) => {
+                    if (err){
+                        // throw err.message;
+                        return {
+                            message: err.message
+                        }
+                    }
+                    return {
+                        message: 'Success'
+                    }
+                });
+            }
+        });
+
+
     } catch (error) {
         throw error;
     }
@@ -179,8 +143,35 @@ module.exports.addRoom = async (data) => {
 
 module.exports.totalClients = async (data) => {
     try {
-        
+        const query = 'CALL ThongKeLuotKhach("' + data.branch + '", ' + data.year + ');';
+        console.log(query);
+        database.query(query, (err, result) => {
+            if (err){
+                throw err.message;
+            }
+            console.log(result[0]);
+            return {
+                message: 'Success',
+                data: result[0]
+            }
+        });
     } catch (error) {
         throw error;
     }
 }
+
+// const loga = this.addRoom({
+//     name: 'test',
+//     size: 30,
+//     num: 5,
+//     description: 'test',
+//     furniture: {
+//         'VT0001': 10,
+//         'VT0002': 2
+//     }
+// });
+
+// const test = this.totalClients({
+//     branch: 'CN1',
+//     year: 2021
+// })

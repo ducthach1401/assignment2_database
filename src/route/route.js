@@ -3,8 +3,8 @@ const controller = require('../controller/controller');
 
 const route = express.Router();
 
-route.route('/login')
-    .post(controller.login);
+// route.route('/login')
+//     .post(controller.login);
 
 route.route('/clients')
     .get(controller.getAllClients)

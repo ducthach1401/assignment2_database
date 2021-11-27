@@ -1,11 +1,8 @@
 const service = require('../model/model');
 
-module.exports.login = async (req, res) => {
-    
-}
-
 module.exports.getAllClients = async (req, res) => {
-    
+    const result = await service.getAllClients();
+    res.json(result)
 }
 
 module.exports.getClient = async (req, res) => {
