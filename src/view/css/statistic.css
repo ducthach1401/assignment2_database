@@ -1,0 +1,41 @@
+.header{
+    font-size: large;
+    width: 90%  ;
+    margin: auto;
+}
+
+.header svg {
+    margin-right: 20px;
+}
+
+table, td, th {
+    border: 2px solid black;
+    padding: 15px;
+}
+
+th {
+    background-color: cornflowerblue;
+}
+
+tr {
+    text-align: center;
+}
+
+table {
+    border-collapse: collapse;
+    width: 700px;
+}
+
+select {
+    width: 100px;
+    height: 30px;
+}
+
+label {
+    margin-right: 10px;
+    width: 100px;
+}
+
+.form button {
+    margin-top: 10px;
+}

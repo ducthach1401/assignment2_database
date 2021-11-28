@@ -24,7 +24,7 @@ module.exports.callback = async(data) =>{
     }
 }
 
-module.exports.getAllClients = async () => {
+module.exports.getAllClients = async (callback) => {
     try {
         const cmd_query = 'SELECT * FROM Client';
         const client = await database.query(cmd_query, (err, result) => {
@@ -32,24 +32,25 @@ module.exports.getAllClients = async () => {
                 throw err;
             }
             if (result.length == 0){
-                return {
-                    message: 'Data null'
-                };
+                callback ({
+                    message: 'Failed',
+                });
+                return;
             }
             for (let data of result){
                 delete data.Password;
             }
-            return {
+            callback({
                 message: 'Success',
                 data: result
-            }
+            });
         })
     } catch (error) {
         throw error;
     }
 }
 
-module.exports.getClient = async (data)  => {
+module.exports.getClient = async (data, callback)  => {
     try {
         const cmd_query = 'SELECT * FROM Client WHERE LOCATE("{}", Client_Name) > 0;'.replace('{}', data.name);
         const client = await database.query(cmd_query, (err, result) => {
@@ -57,24 +58,25 @@ module.exports.getClient = async (data)  => {
                 throw err;
             }
             if (result.length == 0){
-                return {
-                    message: 'Data null'
-                };
+                callback ({
+                    message: 'Failed'
+                });
+                return;
             }
             for (let data of result){
                 delete data.Password;
             }
-            return {
+            callback ({
                 message: 'Success',
                 data: result
-            }
+            });
         })
     } catch (error) {
         throw error;
     }
 }
 
-module.exports.billClient = async (data) => {
+module.exports.billClient = async (data, callback) => {
     try {
         const cmd_query = 'SELECT * FROM Order_room WHERE ID_customer = "{}";'.replace('{}', data.id);
         const client = await database.query(cmd_query, (err, result) => {
@@ -82,27 +84,28 @@ module.exports.billClient = async (data) => {
                 throw err;
             }
             if (result.length == 0){
-                return {
-                    message: 'Data null'
-                };
+                callback ({
+                    message: 'Failed'
+                });
+                return;
             }
             for (let data of result){
                 delete data.ID_customer;
                 delete data.Name_service;
             }
-            return {
+            callback ({
                 message: 'Success',
                 data: result
-            }
+            });
         })
     } catch (error) {
         throw error;
     }
 }
 
-module.exports.addRoom = async (data) => {
+module.exports.addRoom = async (data, callback) => {
     try {
-        const cmd_query = 'INSERT INTO ROOM_TYPE (RoomType_Name, Room_Size, Max_Occupant, Description) VALUES ("name", "size", "num", "description");'
+        const cmd_query = 'INSERT INTO ROOM_TYPE (RoomType_Name, Room_Size, Max_Occupant, Description) VALUES ("name", size, num, "description");'
                     .replace('name',data.name)
                     .replace('size',data.size)
                     .replace('num',data.num)
@@ -110,56 +113,108 @@ module.exports.addRoom = async (data) => {
 
         const client = await database.query(cmd_query, (err, result) => {
             if (err){
-                return {
+                callback ({
                     message: err.message
-                }
+                });
+                return;
             }
-    
+            let check = 0;
             for (let fur in data.furniture){
                 const add_query = 'INSERT INTO ROOM_SUPPLY (Supply_ID, RoomType_ID, Quantity) VALUES ("InsertSupply", InsertRoomType, InsertQuantity);'
                     .replace("InsertSupply", fur)
                     .replace("InsertRoomType", result.insertId)
                     .replace("InsertQuantity", data.furniture[fur]);
 
-                database.query(add_query, (err, result) => {
+                database.query(add_query, (err, res) => {
                     if (err){
-                        // throw err.message;
-                        return {
-                            message: err.message
-                        }
-                    }
-                    return {
-                        message: 'Success'
+                        check = 1;
+                        return;
                     }
                 });
             }
+            if (check) {
+                callback ({
+                    message: err.message
+                });
+            }
+            else {
+                callback ({
+                    message: 'Success'
+                });
+            }
         });
-
-
     } catch (error) {
         throw error;
     }
 }
 
-module.exports.totalClients = async (data) => {
+module.exports.totalClients = async (data, callback) => {
     try {
         const query = 'CALL ThongKeLuotKhach("' + data.branch + '", ' + data.year + ');';
-        console.log(query);
         database.query(query, (err, result) => {
             if (err){
-                throw err.message;
+                callback ({
+                    message: err.message
+                });
+                return;
             }
-            console.log(result[0]);
-            return {
+            callback ({
                 message: 'Success',
                 data: result[0]
-            }
+            });
         });
     } catch (error) {
         throw error;
     }
 }
 
+module.exports.getFurniture = async (callback) => {
+    try {
+        const cmd_query = 'SELECT * FROM Furniture';
+        const client = await database.query(cmd_query, (err, result) => {
+            if (err){
+                throw err;
+            }
+            if (result.length == 0){
+                callback ({
+                    message: 'Failed',
+                });
+                return;
+            }
+
+            callback({
+                message: 'Success',
+                data: result
+            });
+        })
+    } catch (error) {
+        throw error;
+    }
+}
+
+module.exports.getBranch = async (callback) => {
+    try {
+        const cmd_query = 'SELECT * FROM Branch';
+        const client = await database.query(cmd_query, (err, result) => {
+            if (err){
+                throw err;
+            }
+            if (result.length == 0){
+                callback ({
+                    message: 'Failed',
+                });
+                return;
+            }
+
+            callback({
+                message: 'Success',
+                data: result
+            });
+        })
+    } catch (error) {
+        throw error;
+    }
+}
 // const loga = this.addRoom({
 //     name: 'test',
 //     size: 30,

@@ -1,0 +1,67 @@
+.header{
+    font-size: large;
+    width: 90%  ;
+    margin: auto;
+}
+
+.header svg {
+    margin-right: 20px;
+}
+
+table, td, th {
+    border: 2px solid black;
+    padding: 15px;
+}
+
+th {
+    background-color: cornflowerblue;
+}
+
+tr {
+    text-align: center;
+}
+
+table {
+    border-collapse: collapse;
+    width: 1066px;
+}
+
+#home {
+    margin-bottom: 20px;
+}
+
+#home-search {
+    position: relative;
+    left: 2%;
+    margin-top: 10px;   
+}
+
+#search {
+    padding-left: 35px;
+    width: 300px;
+}
+
+#input-img {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    top: 25%;
+    left: 3%;
+}
+
+input::placeholder {
+    color: rgb(221, 221, 221);
+    opacity: 1;
+    font-size: 14px;
+}
+
+.btn-table {
+    width: 100px;
+}
+
+.return-home {
+    margin-top: 10px;
+    height: 50px;
+}
+
+
