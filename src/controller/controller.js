@@ -78,3 +78,34 @@ module.exports.getBranch = async (req, res) => {
     }
 }
 
+module.exports.login = async (req, res) => {
+    try {
+        const data = req.body;
+        const result = await service.login(data);
+        if (result.message == 'Success'){
+            res.cookie('accessToken', result.token, {
+                httpOnly: true
+            });
+            res.json({
+                message: result.message
+            })
+        }
+        else {
+            res.json(result);
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+module.exports.logout = async (req, res) => {
+    try {
+        res.clearCookie("accessToken");
+        res.json({
+            message: 'Success'
+        });
+    } catch (error) {
+        throw error;
+    }
+}

@@ -1,7 +1,6 @@
 const mysql = require('mysql');
 require('dotenv').config();
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt');
 
 var database = mysql.createConnection({
     host: process.env.SERVER,
@@ -16,14 +15,35 @@ database.connect(function(err) {
     console.log("Connected!!!")
 });
 
-module.exports.callback = async(data) =>{
+// module.exports.callback = async(data) =>{
+//     try {
+//         return data;
+//     } catch (error) {
+//         throw error;   
+//     }
+// }
+
+module.exports.login = async (data) => {
     try {
-        return data;
+        if ((data.username == process.env.USERNAME) && (data.password == process.env.PASSWORD)){
+            const payload = {
+                username: data.username
+            }
+            const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '6h'});
+            return {
+                message: 'Success',
+                token: accessToken
+            }
+        } 
+        else {
+            return {
+                message: 'Failed'
+            }
+        }
     } catch (error) {
-        throw error;   
+        throw error;
     }
 }
-
 module.exports.getAllClients = async (callback) => {
     try {
         const cmd_query = 'SELECT * FROM Client';
@@ -215,18 +235,3 @@ module.exports.getBranch = async (callback) => {
         throw error;
     }
 }
-// const loga = this.addRoom({
-//     name: 'test',
-//     size: 30,
-//     num: 5,
-//     description: 'test',
-//     furniture: {
-//         'VT0001': 10,
-//         'VT0002': 2
-//     }
-// });
-
-// const test = this.totalClients({
-//     branch: 'CN1',
-//     year: 2021
-// })

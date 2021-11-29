@@ -83,6 +83,9 @@ async function submit() {
             title: data.message,
             icon: 'success'
         })
+        setTimeout(() => {
+            window.location.href = '/room'
+        }, 1000);
     }
     else {
         Swal.fire({

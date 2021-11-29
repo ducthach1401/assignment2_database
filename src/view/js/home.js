@@ -14,7 +14,6 @@ async function home() {
 async function find() {
     const name = document.getElementById('search').value;
     if (name == ''){
-        console.log(name);
         home();
         return;
     }
